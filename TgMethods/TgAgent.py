@@ -5,9 +5,10 @@ import re
 import time
 import random
 from .photos import photos
+from keyboards import MyKeyboardButton
 
 
-class TgAgent:
+class TgAgent(MyKeyboardButton):
 
 	bot = bot
 	"""
@@ -33,22 +34,15 @@ class TgAgent:
 		'verify_work_example': 'send_work_example',
 	}
 
-	markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-	btn1 = types.KeyboardButton("Start")
-	btn2 = types.KeyboardButton("Записаться")
-	btn3 = types.KeyboardButton("Адрес")
-	btn4 = types.KeyboardButton("Price")
-	btn5 = types.KeyboardButton("Наши работы")
-	btn6 = types.KeyboardButton("Наш сайт")
-	markup.add(btn1, btn2, btn3, btn4, btn5, btn6)
-
 	def __init__(self, context):
+		super().__init__()
 		self.username = context.get('from_user').get('username')
 		self.first_name = context.get('from_user').get('first_name', self.username)
 		self.chat_id = context.get('chat_id')
 		self.msg = context.get('text')
 		self.msg_previous = context.get('text')
 		self.users_admin = [1642719191]  # администраторы
+		self.markup = self.get_markup()
 
 	async def send_message_to_admins(self):
 		for user in self.users_admin:
@@ -102,7 +96,7 @@ class TgAgent:
 		return bool(pattern.findall(self.msg) or self.msg == 'h')
 
 	async def verify_work_example(self):
-		pattern = re.compile(r'\b(?:примеры?\s*рабо?т|посмотреть\s*рабо?ты|ваших?\s*рабо?ты?|качество\s*рабо?т|наши работы|смoтреть еще)\w*')
+		pattern = re.compile(r'\b(?:примеры?\s*рабо?т|посмотреть\s*рабо?ты|ваших?\s*рабо?ты?|качество\s*рабо?т|наши работы|смoтреть ещё)\w*')
 		return bool(pattern.findall(self.msg) or self.msg == 'ex')
 
 	async def verify_thank_you(self):
@@ -153,9 +147,7 @@ class TgAgent:
 		await self.bot.send_message(self.chat_id, random.choice([t1, t2, t3]), reply_markup=self.markup)
 
 	async def send_link_entry(self):
-		markup = types.InlineKeyboardMarkup()
-		button1 = types.InlineKeyboardButton(text="ON-LINE ЗАПИСЬ", url='https://dikidi.net/72910')
-		markup.add(button1)
+		markup = self.get_inline_markup_one(text="ON-LINE ЗАПИСЬ", url='https://dikidi.net/72910')
 		text = f"""
 		{self.first_name}, узнать о свободных местах, своих записях и/или записаться можно:\n
 		✔️ Самостоятельно: <a href="https://dikidi.net/72910">ON-LINE</a>
@@ -168,9 +160,7 @@ class TgAgent:
 		await self.bot.send_message(self.chat_id, text, parse_mode="HTML", reply_markup=markup)
 
 	async def send_price(self):
-		markup = types.InlineKeyboardMarkup()
-		button1 = types.InlineKeyboardButton(text="СМОТРЕТЬ PRICE", url="https://vk.com/uslugi-142029999")
-		markup.add(button1)
+		markup = self.get_inline_markup_one(text="СМОТРЕТЬ PRICE", url="https://vk.com/uslugi-142029999")
 		text = f"""		
 		{self.first_name}, цены на наши услуги можно посмотреть здесь: ️<a href="https://vk.com/uslugi-142029999">PRICE</a>\n		
 		Что вас еще интересует напишите или выберите ниже:
@@ -193,9 +183,7 @@ class TgAgent:
 		await self.bot.send_message(self.chat_id, text, reply_markup=self.markup)
 
 	async def send_site(self):
-		markup = types.InlineKeyboardMarkup()
-		button1 = types.InlineKeyboardButton(text="НАШ САЙТ", url='https://oksa-studio.ru/')
-		markup.add(button1)
+		markup = self.get_inline_markup_one(text="НАШ САЙТ", url='https://oksa-studio.ru/')
 		text = f"""
 		{self.first_name}, много полезной информации о наращивании ресниц смотрите на нашем сайте:
 		https://oksa-studio.ru/
@@ -245,18 +233,27 @@ class TgAgent:
 		await self.send_photo()
 		await self.bot.send_message(self.chat_id, text, reply_markup=self.markup)
 
-	async def send_photo(self, photo_id=None):
-		attachment = photo_id if photo_id else await self.get_photos_example()
-		for photo in attachment:
-			await self.bot.send_message(
-				self.chat_id,
-				f'<a href="{photo}">Наши работы</a>',
-				parse_mode="HTML"
-			)
+	async def send_photo(self, photo_id=None, n=5):
+		attachment = photo_id if photo_id else await self.get_photos_example(n)
+		markup = self.get_inline_markup_one(text="БОЛЬШЕ РАБОТ", url='https://vk.com/albums-142029999/')
+		for i, photo in enumerate(attachment, start=1):
+			if i == n:
+				await self.bot.send_message(
+					self.chat_id,
+					f'<a href="{photo}">Наши работы</a>',
+					parse_mode="HTML",
+					reply_markup=markup
+				)
+			else:
+				await self.bot.send_message(
+					self.chat_id,
+					f'<a href="{photo}">Наши работы</a>',
+					parse_mode="HTML"
+				)
 
 	@staticmethod
-	async def get_photos_example():
+	async def get_photos_example(n):
 		attachment = []
-		for photo in random.sample(photos, 5):
+		for photo in random.sample(photos, n):
 			attachment.append(f"https://vk.com/{photo}")
 		return attachment
