@@ -3,8 +3,10 @@ from aiogram import types
 import asyncio
 import string
 from TgUser import TgUser
+from datetime import datetime
 
 users = {}
+count = 0
 
 
 async def get_context(message: types.Message):
@@ -31,6 +33,10 @@ async def users_update(user, message: types.Message, user_class):
 	users.update({
 		f'user_{user}': {'user_class': user_class, 'time_create': message.date}
 	})
+	if len(users) == 50:
+		min_date = min([users[user]['time_create'] for user in users])
+		user_delete = [user for user in users if users[user]['time_create'] == min_date][0]
+		del users[user_delete]
 
 
 async def global_handler(message: types.Message):
