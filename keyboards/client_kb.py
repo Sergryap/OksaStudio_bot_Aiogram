@@ -6,12 +6,12 @@ class MyKeyboardButton:
 
 	def __init__(self):
 		self.buttons = [
-			"Start",
-			"Записаться",
-			"Адрес",
-			"Price",
+			# "Start",
 			"Наши работы",
+			"Записаться",
 			"Наш сайт",
+			# "Адрес",
+			# "Price",
 		]
 
 	def get_markup(self):

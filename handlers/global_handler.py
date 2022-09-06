@@ -1,7 +1,8 @@
 from create_bot import bot
 from aiogram import types
 import asyncio
-from TgMethods import TgAgent
+import string
+from TgUser import TgUser
 
 users = {}
 
@@ -15,7 +16,8 @@ async def get_context(message: types.Message):
 			'username': message.from_user.username,
 			'first_name': message.from_user.first_name
 		},
-		'text': message.text.lower().replace('''"''', '').replace("""'""", '').replace(r'/', ''),
+		# 'text': message.text.lower().replace('''"''', '').replace("""'""", '').replace(r'/', ''),
+		'text': message.text.lower().translate(str.maketrans('', '', string.punctuation)),
 		'chat_id': message.from_user.id
 	}
 
@@ -38,7 +40,7 @@ async def global_handler(message: types.Message):
 	user = message.from_user.username
 	context = await get_context(message)
 	if f'user_{user}' not in users:
-		exec(f"user_{user} = TgAgent(context={context})")
+		exec(f"user_{user} = TgUser(context={context})")
 		await users_update(user, message, user_class=eval(f"user_{user}"))
 		await eval(f"user_{user}.handler_msg()")
 	else:

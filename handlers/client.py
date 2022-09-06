@@ -1,28 +1,38 @@
+import json
+import string
 import asyncio
+import time
+
 from aiogram import types, Dispatcher
 from create_bot import dp, bot
-from aiogram.types import ReplyKeyboardRemove
 from .global_handler import global_handler
+
+
+async def try_except(message: types.Message):
+	try:
+		await asyncio.create_task(global_handler(message))
+		await message.delete()
+	except:
+		await message.reply('Для общения с ботом через ЛС, напишите ему:\nhttps://t.me/OksaStudio_bot')  # ответ бота с цитированием
 
 
 # @dp.message_handler(commands=['start', 'help'])
 async def command_start(message: types.Message):
-	try:
-		await asyncio.create_task(global_handler(message))
-		# await bot.send_message(message.from_user.id, 'Приятного аппетита!', reply_markup=kb_client)  # ответ бота личным сообщением
+	await asyncio.create_task(try_except(message))
+
+
+# @dp.message_handler(commands=['z', 'p', 'h', 'ex', 'ad'])
+async def command_basic(message: types.Message):
+	await asyncio.create_task(try_except(message))
+
+
+# @dp.message_handler()
+async def basic_send(message: types.Message):
+	if {i.lower().translate(str.maketrans('', '', string.punctuation)) for i in message.text.split(' ')}.intersection(set(json.load(open('cenz.json')))) != set():
+		await message.reply('Маты запрещены! Будьте вежливы!')
 		await message.delete()
-	except:
-		await message.reply('Общение с ботом через ЛС, напишите ему:\nhttps://t.me/OksaStudio_bot')  # ответ бота с цитированием
-
-
-# @dp.message_handler(commands=['Режим_работы'])
-async def pizza_open_command(message: types.Message):
-	await bot.send_message(message.from_user.id, 'Вс-Чт с 09:00 до 20:00, Пт-Сб с 10:00 до 23:00')  # ответ бота личным сообщением
-
-
-# @dp.message_handler(commands=['Расположение'])
-async def pizza_place_command(message: types.Message):
-	await bot.send_message(message.from_user.id, 'ул. Колбасная, 15', reply_markup=ReplyKeyboardRemove())  # ответ бота личным сообщением
+	else:
+		await asyncio.create_task(try_except(message))
 
 
 # @dp.message_handler(commands=['Меню'])
@@ -33,5 +43,5 @@ async def pizza_place_command(message: types.Message):
 
 def register_handlers_client(dp: Dispatcher):
 	dp.register_message_handler(command_start, commands=['start', 'help'])
-	dp.register_message_handler(pizza_open_command, commands=['Режим_работы'])
-	dp.register_message_handler(pizza_place_command, commands=['Расположение'])
+	dp.register_message_handler(command_basic, commands=['z', 'p', 'h', 'ex', 'ad'])
+	dp.register_message_handler(basic_send)
