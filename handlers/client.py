@@ -1,6 +1,5 @@
 import json
 import string
-import asyncio
 import time
 
 from aiogram import types, Dispatcher
@@ -10,20 +9,20 @@ from .global_handler import global_handler
 
 async def try_except(message: types.Message):
 	try:
-		await asyncio.create_task(global_handler(message))
+		await global_handler(message)
 		await message.delete()
 	except:
-		await message.reply('Для общения с ботом через ЛС, напишите ему:\nhttps://t.me/OksaStudio_bot')  # ответ бота с цитированием
+		await message.reply('Для общения с ботом через ЛС, напишите ему:\nhttps://t.me/Oksa_studio_bot')  # ответ бота с цитированием
 
 
 # @dp.message_handler(commands=['start', 'help'])
 async def command_start(message: types.Message):
-	await asyncio.create_task(try_except(message))
+	await try_except(message)
 
 
 # @dp.message_handler(commands=['z', 'p', 'h', 'ex', 'ad'])
 async def command_basic(message: types.Message):
-	await asyncio.create_task(try_except(message))
+	await try_except(message)
 
 
 # @dp.message_handler()
@@ -32,7 +31,7 @@ async def basic_send(message: types.Message):
 		await message.reply('Маты запрещены! Будьте вежливы!')
 		await message.delete()
 	else:
-		await asyncio.create_task(try_except(message))
+		await global_handler(message)
 
 
 # @dp.message_handler(commands=['Меню'])

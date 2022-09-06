@@ -11,13 +11,14 @@ async def get_context(message: types.Message):
 	"""
 	Получение контекста для передачи в класс пользователя
 	"""
+	msg = message.text.split('@')[0] if message.text[0] == '/' else message.text
 	return {
 		'from_user': {
 			'username': message.from_user.username,
 			'first_name': message.from_user.first_name
 		},
 		# 'text': message.text.lower().replace('''"''', '').replace("""'""", '').replace(r'/', ''),
-		'text': message.text.lower().translate(str.maketrans('', '', string.punctuation)),
+		'text': msg.lower().translate(str.maketrans('', '', string.punctuation)),
 		'chat_id': message.from_user.id
 	}
 

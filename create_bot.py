@@ -3,6 +3,7 @@ import os
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from password import TOKEN
 
 # env = environ.Env(
 #     # set casting, default value
@@ -12,5 +13,6 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 storage = MemoryStorage()
 # bot = Bot(token=env('TOKEN'))
 # dp = Dispatcher(bot, storage=storage)
-bot = Bot(token=os.getenv('TOKEN'))
+# bot = Bot(token=os.getenv('TOKEN'))
+bot = Bot(token=TOKEN)
 dp = Dispatcher(bot, storage=storage)
